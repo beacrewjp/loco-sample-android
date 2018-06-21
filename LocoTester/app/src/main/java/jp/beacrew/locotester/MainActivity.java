@@ -53,6 +53,12 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
         infoScarollView = findViewById(R.id.logs_scroll);
         mBclmanager = new BCLManager(getApplicationContext());
         mBclmanager.setListener(this);
+
+        SharedPreferences data = getSharedPreferences("LocoDemo", Context.MODE_PRIVATE);
+        String savedApikey =data.getString("APIKEY", "");
+        if (!savedApikey.equals("")) {
+            APIKEY = savedApikey;
+        }
     }
 
     @Override
@@ -91,6 +97,10 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 APIKEY = String.valueOf(editView.getText());
+                SharedPreferences data = getSharedPreferences("LocoDemo", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = data.edit();
+                editor.putString("APIKEY", APIKEY);
+                editor.apply();
             }
         });
 
