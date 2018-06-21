@@ -119,8 +119,10 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
      */
     @OnClick(R.id.img_start)
     public void onStartClick() {
-        txt_logs.append(getNowDate() + "  ScanStart" + BR);
-        mBclmanager.scanStart();
+        if(mBclmanager.getState().equals(BCLInitState.INITIALIZED)) {
+            txt_logs.append(getNowDate() + " [info]    ScanStart" + BR);
+            mBclmanager.scanStart();
+        }
     }
 
     /**
