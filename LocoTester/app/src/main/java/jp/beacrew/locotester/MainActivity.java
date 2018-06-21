@@ -85,8 +85,8 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
         mBclmanager.terminateService();
     }
 
-    @OnClick(R.id.img_pin)
-    public void onPinClick() {
+    @OnClick(R.id.img_key)
+    public void onKeyClick() {
         final EditText editView = new EditText(this);
         editView.setText(APIKEY);
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);

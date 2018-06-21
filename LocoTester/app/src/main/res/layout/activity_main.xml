@@ -9,7 +9,7 @@
 
 
     <ImageView
-        android:id="@+id/img_pin"
+        android:id="@+id/img_key"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginEnd="8dp"
@@ -28,7 +28,7 @@
         android:cropToPadding="false"
         android:src="@drawable/ic_power_settings_new_black_24dp"
         app:layout_constraintEnd_toStartOf="@+id/img_start"
-        app:layout_constraintStart_toEndOf="@+id/img_pin"
+        app:layout_constraintStart_toEndOf="@+id/img_key"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
@@ -76,13 +76,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/txt_pin"
+        android:id="@+id/txt_key"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:text="PIN"
+        android:text="KEY"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/img_pin" />
+        app:layout_constraintTop_toBottomOf="@+id/img_key" />
 
     <TextView
         android:id="@+id/txt_init"
@@ -92,7 +92,7 @@
         android:layout_marginStart="32dp"
         android:text="初期化"
         app:layout_constraintEnd_toStartOf="@+id/txt_start"
-        app:layout_constraintStart_toEndOf="@+id/txt_pin"
+        app:layout_constraintStart_toEndOf="@+id/txt_key"
         app:layout_constraintTop_toBottomOf="@+id/img_init" />
 
     <TextView
