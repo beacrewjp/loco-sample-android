@@ -174,8 +174,8 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            txt_logs.append(getNowDate() + "  [DeviceID]  \n" + mBclmanager.getDeviceId() + "\n");
-                                            infoScarollView.fullScroll(View.FOCUS_DOWN);
+                                            txt_logs.append("[DeviceID]  \n" + mBclmanager.getDeviceId() + "\n");
+                                            infoScrollView.fullScroll(View.FOCUS_DOWN);
                                         }
                                     });
                                     break;
@@ -183,8 +183,8 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            txt_logs.append(getNowDate() + "  [Nearest BeaconID]  \n" + mBclmanager.getNearestBeaconId() + "\n");
-                                            infoScarollView.fullScroll(View.FOCUS_DOWN);
+                                            txt_logs.append("[Nearest BeaconID]  \n" + mBclmanager.getNearestBeaconId() + "\n");
+                                            infoScrollView.fullScroll(View.FOCUS_DOWN);
                                         }
                                     });
                                     break;
@@ -196,8 +196,8 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
                                             ArrayList<BCLBeacon> bclBeacons = mBclmanager.getBeacons();
                                             String beacons = gson.toJson(bclBeacons);
 
-                                            txt_logs.append(getNowDate() + "  [Beacons]  \n" + beacons + "\n");
-                                            infoScarollView.fullScroll(View.FOCUS_DOWN);
+                                            txt_logs.append("[Beacons]  \n" + beacons + "\n");
+                                            infoScrollView.fullScroll(View.FOCUS_DOWN);
                                         }
                                     });
                                     break;
@@ -209,8 +209,8 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
                                             ArrayList<BCLCluster> bclClusters = mBclmanager.getClusters();
                                             String clusters = gson.toJson(bclClusters);
 
-                                            txt_logs.append(getNowDate() + "  [Clusters]  \n" + clusters + "\n");
-                                            infoScarollView.fullScroll(View.FOCUS_DOWN);
+                                            txt_logs.append("[Clusters]  \n" + clusters + "\n");
+                                            infoScrollView.fullScroll(View.FOCUS_DOWN);
                                         }
                                     });
                                     break;
@@ -222,8 +222,8 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
                                             ArrayList<BCLRegion> bclRegions = mBclmanager.getRegions();
                                             String regions = gson.toJson(bclRegions);
 
-                                            txt_logs.append(getNowDate() + "  [Regions]  \n" + regions + "\n");
-                                            infoScarollView.fullScroll(View.FOCUS_DOWN);
+                                            txt_logs.append("[Regions]  \n" + regions + "\n");
+                                            infoScrollView.fullScroll(View.FOCUS_DOWN);
                                         }
                                     });
                                     break;
@@ -235,8 +235,8 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
                                             ArrayList<BCLAction> bclActions = mBclmanager.getActions();
                                             String actions = gson.toJson(bclActions);
 
-                                            txt_logs.append(getNowDate() + "  [Actions]  \n" + actions + "\n");
-                                            infoScarollView.fullScroll(View.FOCUS_DOWN);
+                                            txt_logs.append("[Actions]  \n" + actions + "\n");
+                                            infoScrollView.fullScroll(View.FOCUS_DOWN);
                                         }
                                     });
                                     break;
@@ -258,7 +258,7 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                CharSequence csHTML = Html.fromHtml("<font color=\"#ffffff\">" + getNowDate() + "  State  " + bclInitState.toString() + "</font><br>");
+                CharSequence csHTML = Html.fromHtml("<font color=\"#ffffff\">" + getNowDate() + " [Status]    " + bclInitState.toString() + "</font><br>");
                 txt_logs.append(csHTML);
             }
         });
@@ -275,9 +275,9 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
             @Override
             public void run() {
                 for (BCLBeacon bclBeacon : bclBeacons) {
-                    CharSequence csHTML = Html.fromHtml("<font color=\"#ffffff\">" + getNowDate()  + "  Ranging  " + bclBeacon.getName() + "</font><br>");
+                    CharSequence csHTML = Html.fromHtml("<font color=\"#ffffff\">" + getNowDate()  + " [Ranging]    " + bclBeacon.getName() + "</font><br>");
                     txt_logs.append(csHTML);
-                    infoScarollView.fullScroll(View.FOCUS_DOWN);
+                    infoScrollView.fullScroll(View.FOCUS_DOWN);
                 }
             }
         });
@@ -294,9 +294,9 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                CharSequence csHTML = Html.fromHtml("<font color=\"#ffff00\">" + getNowDate()  + "  Action  " +  bclAction.getName() + "</font><br>");
+                CharSequence csHTML = Html.fromHtml("<font color=\"#ffff00\">" + getNowDate()  + " [Action]    " +  bclAction.getName() + "</font><br>");
                 txt_logs.append(csHTML);
-                infoScarollView.fullScroll(View.FOCUS_DOWN);
+                infoScrollView.fullScroll(View.FOCUS_DOWN);
             }
         });
 
@@ -311,10 +311,10 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                CharSequence csHTML = Html.fromHtml("<font color=\"#00ff00\">" + getNowDate()  + "  RegionIn  " + bclRegion.getName() + "</font><br>");
+                CharSequence csHTML = Html.fromHtml("<font color=\"#00ff00\">" + getNowDate()  + " [RegionIn]    " + bclRegion.getName() + "</font><br>");
 
                 txt_logs.append(csHTML);
-                infoScarollView.fullScroll(View.FOCUS_DOWN);
+                infoScrollView.fullScroll(View.FOCUS_DOWN);
             }
         });
 
@@ -329,9 +329,9 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                CharSequence csHTML = Html.fromHtml("<font color=\"#00ffff\">" + getNowDate()  + "  RegionOut  " + bclRegion.getName() + "</font><br>");
+                CharSequence csHTML = Html.fromHtml("<font color=\"#00ffff\">" + getNowDate()  + " [RegionOut]  " + bclRegion.getName() + "</font><br>");
                 txt_logs.append(csHTML);
-                infoScarollView.fullScroll(View.FOCUS_DOWN);
+                infoScrollView.fullScroll(View.FOCUS_DOWN);
             }
         });
 
@@ -346,11 +346,9 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                CharSequence csHTML = Html.fromHtml("<font color=\"#ff0000\">" + getNowDate()  + "  ErrorCode  " + bclError.getCode() + "</font><br>");
+                CharSequence csHTML = Html.fromHtml("<font color=\"#ff0000\">" + getNowDate()  + " [Error]    " + bclError.getMessage() + "</font><br>");
                 txt_logs.append(csHTML);
-                csHTML = Html.fromHtml("<font color=\"#ff0000\">" + getNowDate()  + "  ErrorMessage  " + bclError.getMessage() + "</font><br>");
-                txt_logs.append(csHTML);
-                infoScarollView.fullScroll(View.FOCUS_DOWN);
+                infoScrollView.fullScroll(View.FOCUS_DOWN);
             }
         });
 
