@@ -130,8 +130,10 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
      */
     @OnClick(R.id.img_stop)
     public void onStopClick() {
-        txt_logs.append(getNowDate() + "  ScanStop" + BR);
-        mBclmanager.scanStop();
+        if(mBclmanager.getState().equals(BCLInitState.SCANNING)) {
+            txt_logs.append(getNowDate() + " [info]    ScanStop" + BR);
+            mBclmanager.scanStop();
+        }
     }
 
     /**
