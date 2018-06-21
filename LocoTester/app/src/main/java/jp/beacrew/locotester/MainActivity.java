@@ -38,7 +38,7 @@ import jp.beacrew.loco.BCLRegion;
 public class MainActivity extends Activity implements BCLManagerEventListener{
 
     private TextView txt_logs;
-    private ScrollView infoScarollView;
+    private ScrollView infoScrollView;
     private BCLManager mBclmanager;
     private String APIKEY ="ENTER YOUR SDK SECRET";
     static final String BR = System.getProperty("line.separator");
@@ -50,7 +50,7 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         txt_logs = findViewById(R.id.txt_logs);
-        infoScarollView = findViewById(R.id.logs_scroll);
+        infoScrollView = findViewById(R.id.logs_scroll);
         mBclmanager = new BCLManager(getApplicationContext());
         mBclmanager.setListener(this);
 
