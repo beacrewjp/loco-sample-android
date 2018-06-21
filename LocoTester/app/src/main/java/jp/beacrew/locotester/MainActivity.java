@@ -151,7 +151,7 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
      */
     @OnClick(R.id.img_info)
     public void onInfoClick() {
-        final String[] items = {"DeviceID", "Nearest BeaconID", "Beacons", "Clusters", "Regions", "Actions"};
+        final String[] items = {"DeviceID", "Nearest BeaconID", "Beacons", "Clusters", "Regions", "Actions", "Add Event Log"};
         int defaultItem = 0; // デフォルトでチェックされているアイテム
         final List<Integer> checkedItems = new ArrayList<>();
         checkedItems.add(defaultItem);
@@ -240,6 +240,50 @@ public class MainActivity extends Activity implements BCLManagerEventListener{
                                         }
                                     });
                                     break;
+                                case 6:
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            final AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                                            dialog.setTitle("Add Event Log");
+                                            LinearLayout layout = new LinearLayout(MainActivity.this);
+                                            layout.setOrientation(LinearLayout.VERTICAL);
+                                            TextView txtTitleKey = new TextView(MainActivity.this);
+                                            txtTitleKey.setText("KEY");
+                                            TextView txtTitleValue = new TextView(MainActivity.this);
+                                            txtTitleValue.setText("VALUE");
+
+                                            final EditText editTextKey = new EditText(MainActivity.this);
+                                            editTextKey.setWidth(100);
+                                            final EditText editTextValue = new EditText(MainActivity.this);
+                                            editTextValue.setWidth(100);
+
+                                            layout.addView(txtTitleKey);
+                                            layout.addView(editTextKey);
+                                            layout.addView(txtTitleValue);
+                                            layout.addView(editTextValue);
+                                            dialog.setView(layout);
+
+                                            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    if (!mBclmanager.getState().equals(BCLInitState.UNINITIALIZE)) {
+                                                        mBclmanager.addEventLog(editTextKey.getText().toString(), editTextValue.getText().toString());
+                                                        txt_logs.append("[AddEventlog]  \n" + "Key: " + editTextKey.getText().toString() + "\n" + "Value: " + editTextValue.getText().toString() + "\n");
+                                                        infoScrollView.fullScroll(View.FOCUS_DOWN);
+                                                    }
+                                                }
+                                            });
+
+                                            dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                                }
+                                            });
+                                            dialog.show();
+                                        }
+                                    });
 
                             }
                         }
