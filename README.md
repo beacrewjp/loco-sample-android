@@ -1,1 +1,0 @@
-# loco-sample-android
