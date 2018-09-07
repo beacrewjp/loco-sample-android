@@ -264,4 +264,53 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         dialog.setCancelable(false);
         return dialog;
     }
+
+    private void showWebDialog(ArrayList<BCLParam> bclParams) {
+
+        for (BCLParam bclParam : bclParams) {
+            if (bclParam.getKey().equals("page")) {
+
+                if (webDialogFlg == true) {
+                    dialog.dismiss();
+                    dialog = null;
+                }
+
+                final String uri = bclParam.getValue();
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(bclParam.getValue());
+                builder.setMessage("製品カタログを表示します。");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //EventLogを作成します。
+                        mBclmanager.addEventLog("Open", uri);
+                        webDialogFlg = false;
+
+                        Intent intent = new Intent(getApplicationContext(), WebActivity.class);
+                        intent.putExtra("URI", uri);
+                        startActivity(intent);
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        webDialogFlg = false;
+                        dialog.dismiss();
+                    }
+                });
+                builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                    @Override
+                    public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                        if (keyEvent.getAction() == KeyEvent.ACTION_UP && i == KeyEvent.KEYCODE_BACK) {
+                            webDialogFlg = false;
+                        }
+                        return false;
+                    }
+                });
+
+                dialog = builder.create();
+                dialog.show();
+                webDialogFlg = true;
+            }
+        }
+    }
+
 }
