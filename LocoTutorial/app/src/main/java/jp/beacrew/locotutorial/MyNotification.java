@@ -76,4 +76,51 @@ public class MyNotification {
         notfiyCount++;
     }
 
+    public void actionNotification(String message) {
+        Intent intent = new Intent(mContext, MainActivity.class);
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP  // 起動中のアプリがあってもこちらを優先する
+                        | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED  // 起動中のアプリがあってもこちらを優先する
+                        | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS  // 「最近利用したアプリ」に表示させない
+        );
+
+        PendingIntent contentIntent =
+                PendingIntent.getActivity(
+                        mContext,
+                        notfiyCount,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+
+
+        android.app.Notification notification = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            notification = new android.app.Notification.Builder(mContext, "channel_1")
+                    .setSmallIcon(R.mipmap.icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.icon))
+                    .setWhen(System.currentTimeMillis())
+                    .setContentTitle("LocoAction")
+                    .setContentText(message)
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true)
+                    .build();
+        } else {
+            notification = new android.app.Notification.Builder(mContext)
+                    .setSmallIcon(R.mipmap.icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.icon))
+                    .setWhen(System.currentTimeMillis())
+                    .setContentTitle("LocoAction")
+                    .setContentText(message)
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true)
+                    .build();
+        }
+
+        // 古い通知を削除
+        notificationManager.cancelAll();
+        // 通知
+
+        notificationManager.notify(notfiyCount, notification);
+        notfiyCount++;
+    }
+
 }
