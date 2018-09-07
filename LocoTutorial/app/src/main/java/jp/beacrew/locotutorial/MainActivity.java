@@ -22,11 +22,11 @@ import butterknife.OnClick;
 import jp.beacrew.loco.BCLAction;
 import jp.beacrew.loco.BCLBeacon;
 import jp.beacrew.loco.BCLError;
-import jp.beacrew.loco.BCLInitState;
 import jp.beacrew.loco.BCLManager;
 import jp.beacrew.loco.BCLManagerEventListener;
 import jp.beacrew.loco.BCLParam;
 import jp.beacrew.loco.BCLRegion;
+import jp.beacrew.loco.BCLState;
 
 public class MainActivity extends AppCompatActivity implements BCLManagerEventListener{
 
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         myNotification = new MyNotification(getApplicationContext());
         ButterKnife.bind(this);
 
-        mBclmanager = new BCLManager(getApplicationContext());
+        mBclmanager = BCLManager.getInstance(getApplicationContext());
         mBclmanager.setListener(this);
         mBclmanager.initWithApiKey(APIKEY,true);
     }
@@ -82,12 +82,11 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
 
     /**
      * LocoSDKのステータスが変化すると呼ばれます
-     * @param bclInitState　現在のステータス
+     * @param bclState　現在のステータス
      */
     @Override
-    public void onStateChange(final BCLInitState bclInitState) {
-
-        if (bclInitState.equals(BCLInitState.SCANNING)) {
+    public void onStateChange(BCLState bclState) {
+        if (bclState.equals(bclState.SCANNING)) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
