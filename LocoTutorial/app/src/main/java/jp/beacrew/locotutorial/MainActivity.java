@@ -313,4 +313,13 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         }
     }
 
+    private void actionMessage(ArrayList<BCLParam> bclParams) {
+
+        for (BCLParam bclParam : bclParams) {
+            if (bclParam.getKey().equals("message")) {
+                myNotification.actionNotification(bclParam.getValue());
+            }
+        }
+
+    }
 }
