@@ -30,7 +30,6 @@ import jp.beacrew.loco.BCLState;
 
 public class MainActivity extends AppCompatActivity implements BCLManagerEventListener{
 
-    private static String uri;
     private BCLManager mBclmanager;
     private String APIKEY ="ENTER YOUR SDK SECRET";
     private AlertDialog dialog;
