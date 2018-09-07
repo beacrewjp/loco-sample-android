@@ -170,9 +170,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
      */
     @Override
     public void onRegionIn(final BCLRegion bclRegion) {
-        if (!MyLifecycleHandler.isForeground()) {
-            myNotification.regionNotification(bclRegion);
-        }
+
     }
 
     /**
