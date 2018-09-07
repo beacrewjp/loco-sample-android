@@ -109,59 +109,32 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
 
     /**
      * LocoSDKがActionを検知すると呼ばれます
-     * @param bclAction　アクションの情報
+     * @param bclAction アクションの情報
+     * @param s アクションのType（Beacon、RegionIn、RegionOut）
+     * @param o アクションの発生オブジェクト（BCLBeacon、BCLRegion）
      */
     @Override
-    public void onActionDetected(final BCLAction bclAction) {
-        if(MyLifecycleHandler.isForeground()) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    for (final BCLParam bclParam : bclAction.getParams()) {
-                        if (bclParam.getKey().equals("page")) {
-                            if (webDialogFlg == true) {
-                                dialog.dismiss();
-                                dialog = null;
+    public void onActionDetected(final BCLAction bclAction, String s, Object o) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                ArrayList<BCLParam> bclParams = bclAction.getParams();
+                for (BCLParam bclParam : bclParams) {
+                    if (bclParam.getKey().equals("type")) {
+                        if (bclParam.getValue().equals("web")) {
+                            showWebDialog(bclParams);
+
+                        } else if (bclParam.getValue().equals("push")) {
+                            if(!MyLifecycleHandler.isForeground()) {
+                                actionMessage(bclParams);
                             }
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            builder.setTitle(bclParam.getValue());
-                            builder.setMessage("製品カタログを表示します。");
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    //EventLogを作成します。
-                                    mBclmanager.addEventLog("Open", bclAction.getParams().get(0).getValue());
-                                    webDialogFlg = false;
-                                    uri = bclParam.getValue();
-
-                                    Intent intent = new Intent(getApplicationContext(), WebActivity.class);
-                                    intent.putExtra("URI", uri);
-                                    startActivity(intent);
-                                    dialog.dismiss();
-                                }
-                            }).setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    webDialogFlg = false;
-                                    dialog.dismiss();
-                                }
-                            });
-                            builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
-                                @Override
-                                public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
-                                    if (keyEvent.getAction() == KeyEvent.ACTION_UP && i == KeyEvent.KEYCODE_BACK) {
-                                        webDialogFlg = false;
-                                    }
-                                    return false;
-                                }
-                            });
-
-                            dialog = builder.create();
-                            dialog.show();
-                            webDialogFlg = true;
                         }
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     /**
