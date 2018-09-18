@@ -22,15 +22,14 @@ import butterknife.OnClick;
 import jp.beacrew.loco.BCLAction;
 import jp.beacrew.loco.BCLBeacon;
 import jp.beacrew.loco.BCLError;
-import jp.beacrew.loco.BCLInitState;
 import jp.beacrew.loco.BCLManager;
 import jp.beacrew.loco.BCLManagerEventListener;
 import jp.beacrew.loco.BCLParam;
 import jp.beacrew.loco.BCLRegion;
+import jp.beacrew.loco.BCLState;
 
 public class MainActivity extends AppCompatActivity implements BCLManagerEventListener{
 
-    private static String uri;
     private BCLManager mBclmanager;
     private String APIKEY ="ENTER YOUR SDK SECRET";
     private AlertDialog dialog;
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         myNotification = new MyNotification(getApplicationContext());
         ButterKnife.bind(this);
 
-        mBclmanager = new BCLManager(getApplicationContext());
+        mBclmanager = BCLManager.getInstance(getApplicationContext());
         mBclmanager.setListener(this);
         mBclmanager.initWithApiKey(APIKEY,true);
     }
@@ -82,12 +81,11 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
 
     /**
      * LocoSDKのステータスが変化すると呼ばれます
-     * @param bclInitState　現在のステータス
+     * @param bclState　現在のステータス
      */
     @Override
-    public void onStateChange(final BCLInitState bclInitState) {
-
-        if (bclInitState.equals(BCLInitState.SCANNING)) {
+    public void onStateChange(BCLState bclState) {
+        if (bclState.equals(bclState.SCANNING)) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -109,59 +107,32 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
 
     /**
      * LocoSDKがActionを検知すると呼ばれます
-     * @param bclAction　アクションの情報
+     * @param bclAction アクションの情報
+     * @param s アクションのType（Beacon、RegionIn、RegionOut）
+     * @param o アクションの発生オブジェクト（BCLBeacon、BCLRegion）
      */
     @Override
-    public void onActionDetected(final BCLAction bclAction) {
-        if(MyLifecycleHandler.isForeground()) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    for (final BCLParam bclParam : bclAction.getParams()) {
-                        if (bclParam.getKey().equals("page")) {
-                            if (webDialogFlg == true) {
-                                dialog.dismiss();
-                                dialog = null;
+    public void onActionDetected(final BCLAction bclAction, String s, Object o) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                ArrayList<BCLParam> bclParams = bclAction.getParams();
+                for (BCLParam bclParam : bclParams) {
+                    if (bclParam.getKey().equals("type")) {
+                        if (bclParam.getValue().equals("web")) {
+                            showWebDialog(bclParams);
+
+                        } else if (bclParam.getValue().equals("push")) {
+                            if(!MyLifecycleHandler.isForeground()) {
+                                actionMessage(bclParams);
                             }
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            builder.setTitle(bclParam.getValue());
-                            builder.setMessage("製品カタログを表示します。");
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    //EventLogを作成します。
-                                    mBclmanager.addEventLog("Open", bclAction.getParams().get(0).getValue());
-                                    webDialogFlg = false;
-                                    uri = bclParam.getValue();
-
-                                    Intent intent = new Intent(getApplicationContext(), WebActivity.class);
-                                    intent.putExtra("URI", uri);
-                                    startActivity(intent);
-                                    dialog.dismiss();
-                                }
-                            }).setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    webDialogFlg = false;
-                                    dialog.dismiss();
-                                }
-                            });
-                            builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
-                                @Override
-                                public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
-                                    if (keyEvent.getAction() == KeyEvent.ACTION_UP && i == KeyEvent.KEYCODE_BACK) {
-                                        webDialogFlg = false;
-                                    }
-                                    return false;
-                                }
-                            });
-
-                            dialog = builder.create();
-                            dialog.show();
-                            webDialogFlg = true;
                         }
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     /**
@@ -170,9 +141,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
      */
     @Override
     public void onRegionIn(final BCLRegion bclRegion) {
-        if (!MyLifecycleHandler.isForeground()) {
-            myNotification.regionNotification(bclRegion);
-        }
+
     }
 
     /**
@@ -263,5 +232,63 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         });
         dialog.setCancelable(false);
         return dialog;
+    }
+
+    private void showWebDialog(ArrayList<BCLParam> bclParams) {
+
+        for (BCLParam bclParam : bclParams) {
+            if (bclParam.getKey().equals("page")) {
+
+                if (webDialogFlg == true) {
+                    dialog.dismiss();
+                    dialog = null;
+                }
+
+                final String uri = bclParam.getValue();
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(bclParam.getValue());
+                builder.setMessage("製品カタログを表示します。");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //EventLogを作成します。
+                        mBclmanager.addEventLog("Open", uri);
+                        webDialogFlg = false;
+
+                        Intent intent = new Intent(getApplicationContext(), WebActivity.class);
+                        intent.putExtra("URI", uri);
+                        startActivity(intent);
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        webDialogFlg = false;
+                        dialog.dismiss();
+                    }
+                });
+                builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                    @Override
+                    public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                        if (keyEvent.getAction() == KeyEvent.ACTION_UP && i == KeyEvent.KEYCODE_BACK) {
+                            webDialogFlg = false;
+                        }
+                        return false;
+                    }
+                });
+
+                dialog = builder.create();
+                dialog.show();
+                webDialogFlg = true;
+            }
+        }
+    }
+
+    private void actionMessage(ArrayList<BCLParam> bclParams) {
+
+        for (BCLParam bclParam : bclParams) {
+            if (bclParam.getKey().equals("message")) {
+                myNotification.actionNotification(bclParam.getValue());
+            }
+        }
+
     }
 }

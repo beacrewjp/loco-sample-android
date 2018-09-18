@@ -32,8 +32,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'jp.beacrew:loco:2.1.0@aar'
-    implementation('org.altbeacon:android-beacon-library:2.13.1') {
+    implementation 'jp.beacrew:loco:2.2.0@aar'
+    implementation('org.altbeacon:android-beacon-library:2.15') {
         exclude module: 'support-v4'
     }
     implementation('com.squareup.okhttp3:okhttp:3.9.0') {
@@ -45,12 +45,11 @@ dependencies {
     implementation('org.eclipse.paho:org.eclipse.paho.android.service:1.1.1') {
         exclude module: 'support-v4'
     }
-    implementation('org.bouncycastle:bcpkix-jdk15on:1.58') {
-        exclude module: 'support-v4'
-    }
+
     implementation 'com.google.code.gson:gson:2.8.0'
-    implementation 'com.jakewharton:butterknife:7.0.1'
-    annotationProcessor 'com.jakewharton:butterknife:7.0.1'
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.android.support:design:27.1.1'
 }
 repositories{
     flatDir{
