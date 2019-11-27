@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import org.altbeacon.beacon.Beacon;
@@ -31,6 +33,8 @@ public class Simulator extends Activity {
     private ArrayList<BeaconTransmitter> beaconTransmitterArrayList;
     static final String BR = System.getProperty("line.separator");
     private Context mApplicationContext;
+    private ImageView imglogger2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,15 +42,29 @@ public class Simulator extends Activity {
         setContentView(R.layout.activity_simulator);
 
         mApplicationContext = getApplicationContext();
-        ButterKnife.bind(this);
+        //ButterKnife.bind(this);
         objectAnimatorList = new ArrayList<>();
         list_Beacon = (ListView) findViewById(R.id.list_beacon);
+        imglogger2 = (ImageView) findViewById(R.id.img_logger2);
+        imglogger2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Simulator.this,MainActivity.class);
+                startActivity(intent);
+                stopAllAdvertise();
+                finish();
+                overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);
+
+            }
+        });
 
         bclManager = BCLManager.getInstance(mApplicationContext);
         clusterlist = bclManager.getClusters();
         beaconTransmitterArrayList = new ArrayList<>();
         beaconArrayList = new ArrayList<>();
         beaconlist = new ArrayList<>();
+
+
 
 //Advertise
 
@@ -99,15 +117,6 @@ public class Simulator extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         stopAllAdvertise();
-    }
-
-    @OnClick(R.id.img_logger2)
-    public void onLoggerClick() {
-        Intent intent = new Intent(this,MainActivity.class);
-        startActivity(intent);
-        stopAllAdvertise();
-        finish();
-        overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);
     }
 
     private void createBeaconTransmitter() {
