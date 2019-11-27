@@ -221,19 +221,19 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        final AlertDialog.Builder dialog = new AlertDialog.Builder(mApplicationContext);
+                                                    final AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
                                         dialog.setTitle("Add Event Log");
-                                        LinearLayout layout = new LinearLayout(mApplicationContext);
+                                                    LinearLayout layout = new LinearLayout(MainActivity.this);
                                         layout.setOrientation(LinearLayout.VERTICAL);
-                                        TextView txtTitleKey = new TextView(mApplicationContext);
+                                                    TextView txtTitleKey = new TextView(MainActivity.this);
                                         txtTitleKey.setText("KEY");
-                                        TextView txtTitleValue = new TextView(mApplicationContext);
+                                                    TextView txtTitleValue = new TextView(MainActivity.this);
                                         txtTitleValue.setText("VALUE");
 
-                                        final EditText editTextKey = new EditText(mApplicationContext);
+                                                    final EditText editTextKey = new EditText(MainActivity.this);
                                         editTextKey.setInputType(InputType.TYPE_CLASS_TEXT);
                                         editTextKey.setWidth(100);
-                                        final EditText editTextValue = new EditText(mApplicationContext);
+                                                    final EditText editTextValue = new EditText(MainActivity.this);
                                         editTextValue.setInputType(InputType.TYPE_CLASS_TEXT);
                                         editTextValue.setWidth(100);
 
