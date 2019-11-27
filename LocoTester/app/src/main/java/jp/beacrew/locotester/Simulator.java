@@ -15,9 +15,6 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.BeaconTransmitter;
 
 import java.util.ArrayList;
-
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import jp.beacrew.loco.BCLBeacon;
 
 import jp.beacrew.loco.BCLCluster;

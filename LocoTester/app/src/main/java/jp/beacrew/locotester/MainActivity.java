@@ -34,8 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import jp.beacrew.loco.BCLAction;
 import jp.beacrew.loco.BCLBeacon;
 import jp.beacrew.loco.BCLCluster;
