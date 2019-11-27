@@ -1,22 +1,27 @@
 package jp.beacrew.locotester;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,6 +55,12 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
     static final String BR = System.getProperty("line.separator");
     private Context mApplicationContext;
 
+    private ImageView imgInit;
+    private ImageView imgStart;
+    private ImageView imgStop;
+    private ImageView imgInfo;
+    private ImageView imgSimulator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,73 +72,59 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         infoScrollView = findViewById(R.id.logs_scroll);
         mBclmanager = BCLManager.getInstance(mApplicationContext);
         mBclmanager.setListener(this);
-        ButterKnife.bind(this);
+        //ButterKnife.bind(this);
 
-    }
-
+        imgInit = (ImageView)findViewById(R.id.img_init);
+        imgInit.setOnClickListener(new View.OnClickListener() {
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        //位置情報の許可を取得しているかチェックします
-        permissionCheck();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //LocoSDKを正しく終了させる為に呼び出します
-        mBclmanager.terminateService();
-    }
-
-    @OnClick(R.id.img_init)
-    public void onInitClick() {
+            public void onClick(View view) {
         if (mBclmanager.getState() != BCLState.READY) {
             mBclmanager.initWithApiKey(APIKEY, false);
         }
+
     }
+        });
 
     /**
      * ビーコンのスキャンを開始します
      */
-    @OnClick(R.id.img_start)
-    public void onStartClick() {
+        imgStart = (ImageView)findViewById(R.id.img_start);
+        imgStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
         if(mBclmanager.getState().equals(BCLState.READY)) {
             txt_logs.append(getNowDate() + " [info]    ScanStart" + BR);
             mBclmanager.scanStart();
         }
     }
+        });
 
     /**
      * ビーコンのスキャンを停止します
      */
-    @OnClick(R.id.img_stop)
-    public void onStopClick() {
+        imgStop = (ImageView)findViewById(R.id.img_stop);
+        imgStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
         if(mBclmanager.getState().equals(BCLState.SCANNING)) {
             txt_logs.append(getNowDate() + " [info]    ScanStop" + BR);
             mBclmanager.scanStop();
         }
     }
+        });
 
     /**
      * LocoSDKの初期化によって得られた情報（Locoダッシュボードで入力されたデータ）を表示します
      */
-    @OnClick(R.id.img_info)
-    public void onInfoClick() {
+        imgInfo = (ImageView)findViewById(R.id.img_info);
+        imgInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
         final String[] items = {"DeviceID", "Nearest BeaconID", "Beacons", "Clusters", "Regions", "Actions", "Add Event Log"};
         int defaultItem = 0; // デフォルトでチェックされているアイテム
         final List<Integer> checkedItems = new ArrayList<>();
         checkedItems.add(defaultItem);
-        new AlertDialog.Builder(this)
+                new AlertDialog.Builder(MainActivity.this)
                 .setTitle("Selector")
                 .setSingleChoiceItems(items, defaultItem, new DialogInterface.OnClickListener() {
                     @Override
@@ -274,15 +271,45 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+        });
 
-    @OnClick(R.id.img_simulator)
-    public void onSimulatorClick() {
-        Intent intent = new Intent(this,Simulator.class);
+        imgSimulator = (ImageView)findViewById(R.id.img_simulator);
+        imgSimulator.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,Simulator.class);
 
         startActivity(intent);
         overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
     }
+        });
 
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //位置情報の許可を取得しているかチェックします
+        permissionCheck();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //LocoSDKを正しく終了させる為に呼び出します
+        mBclmanager.terminateService();
+    }
 
     private void permissionCheck() {
         if (Build.VERSION.SDK_INT < 23) {
