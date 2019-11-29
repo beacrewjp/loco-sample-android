@@ -1,6 +1,7 @@
 package jp.beacrew.locotutorial;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -177,45 +178,112 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
     public void onError(final BCLError bclError) {
     }
 
-
-
-
     private void permissionCheck() {
-        if (Build.VERSION.SDK_INT < 23) {
-            permissionCheckResult(
-                    2, new int[]{PackageManager.PERMISSION_GRANTED});
-        } else {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                // Request missing location permission.
-                Log.d("LocoTutorial", "パーミッションなし");
-                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1000);
-                } else {
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1000);
 
+        if (Build.VERSION.SDK_INT > 23) {
 
+            boolean permissionAccessFineLocationApproved =
+                    checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED;
+
+            if (permissionAccessFineLocationApproved) {
+
+                if (Build.VERSION.SDK_INT >= 29) {
+                    boolean backgroundLocationPermissionApproved =
+                            checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                                    == PackageManager.PERMISSION_GRANTED;
+
+                    if (backgroundLocationPermissionApproved) {
+                        // App can access location both in the foreground and in the background.
+                        // Start your service that doesn't have a foreground service type
+                        // defined.
+                    } else {
+                        // App can only access location in the foreground. Display a dialog
+                        // warning the user that your app must have all-the-time access to
+                        // location in order to function properly. Then, request background
+                        // location.
+                        requestPermissions(new String[]{
+                                        Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                1000);
+                    }
                 }
             } else {
-                // Location permission has been granted, continue as usual.
-                Log.d("LocoTutorial", "パーミッションあり");
-                permissionCheckResult(
-                        2, new int[]{PackageManager.PERMISSION_GRANTED});
+                if (Build.VERSION.SDK_INT >= 29) {
+                    // App doesn't have access to the device's location at all. Make full request
+                    // for permission.
+                    requestPermissions(new String[]{
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                            },
+                            1000);
+                } else {
+                    requestPermissions(new String[]{
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                            },
+                            1000);
+                }
             }
         }
     }
 
-    public void permissionCheckResult(int requestCode, int[] grantResults) {
-        if (requestCode == 2) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("LocoTutorial", "パーミッション許可");
+    @TargetApi(Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        if (requestCode == 1000) {
 
+            if (Build.VERSION.SDK_INT >= 29) {
+                if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    // success!
+                    Log.d("LocoTutorial", "Backgroundパーミッション許可");
+
+                } else {
+                    // Permission was denied or request was cancelled
+                    Log.d("LocoTutorial", "Backgroundパーミッション拒否");
+                    new AlertDialog.Builder(this)
+                            .setTitle("注意")
+                            .setMessage("本アプリは位置情報を常に使用します、設定画面から位置情報の許可を常に使用するにして下さい")
+                            .setPositiveButton(
+                                    "OK",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            // システムのアプリ設定画面
+                                            Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                        }
+                                    })
+                            .show();
+                }
             } else {
-                Log.d("LocoTutorial", "パーミッション拒否");
+                if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
+                    // success!
+                    Log.d("LocoTutorial", "パーミッション許可");
+
+                } else {
+                    // Permission was denied or request was cancelled
+                    Log.d("LocoTutorial", "パーミッション拒否");
+                    new AlertDialog.Builder(this)
+                            .setTitle("注意")
+                            .setMessage("本アプリは位置情報を常に使用します、設定画面から位置情報の許可を常に使用するにして下さい")
+                            .setPositiveButton(
+                                    "OK",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            // システムのアプリ設定画面
+                                            Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                        }
+                                    })
+                            .show();
+                }
             }
         }
     }
-
 
     private Dialog beaconSearchDialog(final Activity activity) {
 
