@@ -9,16 +9,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+
 import java.util.ArrayList;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import jp.beacrew.loco.BCLAction;
 import jp.beacrew.loco.BCLBeacon;
 import jp.beacrew.loco.BCLError;
@@ -32,10 +34,12 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
 
     private BCLManager mBclmanager;
     private String APIKEY ="ENTER YOUR SDK SECRET";
+
     private AlertDialog dialog;
     private static Dialog mDialog;
     private boolean webDialogFlg = false;
     private MyNotification myNotification;
+    private ImageView imgMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +48,24 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         setContentView(R.layout.activity_main);
 
         myNotification = new MyNotification(getApplicationContext());
-        ButterKnife.bind(this);
 
+        BCLManager.setUseForegroundService(true);
         mBclmanager = BCLManager.getInstance(getApplicationContext());
         mBclmanager.setListener(this);
         mBclmanager.initWithApiKey(APIKEY,true);
+
+        /**
+         * infoボタンのイベントハンドラ
+         * インフォメーションを表示します。
+         */
+        imgMenu = (ImageView)findViewById(R.id.img_menu);
+        imgMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -161,15 +178,6 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
     }
 
 
-    /**
-     * infoボタンのイベントハンドラ
-     * インフォメーションを表示します。
-     */
-    @OnClick(R.id.img_menu)
-    public void onMenuClick() {
-        Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
-        startActivity(intent);
-    }
 
 
     private void permissionCheck() {

@@ -6,10 +6,12 @@ import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -20,14 +22,33 @@ import butterknife.OnClick;
 public class WebActivity extends Activity {
     private WebView webView;
     private String mUri = "";
+    private ImageView imgWebMenu;
+    private ImageView imgWebHome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.webactivity);
-        ButterKnife.bind(this);
         Intent intent = getIntent();
         mUri = intent.getStringExtra("URI");
+
+        imgWebMenu = (ImageView)findViewById(R.id.img_webmenu);
+        imgWebMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
+                intent.putExtra("WebActivity", true);
+                startActivity(intent);
+            }
+        });
+
+        imgWebHome = (ImageView)findViewById(R.id.img_webhome);
+        imgWebHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -75,16 +96,4 @@ public class WebActivity extends Activity {
         });
         webView.loadUrl("file:///android_asset/html/" + mUri + ".html");
     }
-    @OnClick(R.id.img_webmenu)
-    public void onMenuClick() {
-        Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
-        intent.putExtra("WebActivity", true);
-        startActivity(intent);
-    }
-
-    @OnClick(R.id.img_webhome)
-    public void onHomeClick() {
-        finish();
-    }
-
 }
