@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
      */
     @Override
     public void onStateChange(BCLState bclState) {
-        if (bclState.equals(bclState.SCANNING)) {
+        if (bclState.equals(BCLState.SCANNING)) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
