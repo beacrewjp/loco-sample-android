@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         imgInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String[] items = {"DeviceID", "Nearest BeaconID", "Beacons", "Clusters", "Regions", "Actions", "Add Event Log"};
+                final String[] items = {"DeviceID", "Nearest BeaconID", "Beacons", "Clusters", "Regions", "Actions", "Add Event Log", "Add MetaData"};
                 int defaultItem = 0; // デフォルトでチェックされているアイテム
                 final List<Integer> checkedItems = new ArrayList<>();
                 checkedItems.add(defaultItem);
@@ -247,6 +247,49 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
                                                             if (!mBclmanager.getState().equals(BCLState.UNINITIALIZED)) {
                                                                 mBclmanager.addEventLog(editTextKey.getText().toString(), editTextValue.getText().toString());
                                                                 txt_logs.append("[AddEventlog]  \n" + "key: " + editTextKey.getText().toString() + "\n" + "value: " + editTextValue.getText().toString() + "\n");
+                                                                infoScrollView.fullScroll(View.FOCUS_DOWN);
+                                                            }
+                                                        }
+                                                    });
+
+                                                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                                        }
+                                                    });
+                                                    dialog.show();
+                                                }
+                                            });
+                                        case 7:
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    final AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                                                    dialog.setTitle("Add MetaData");
+                                                    LinearLayout layout = new LinearLayout(MainActivity.this);
+                                                    layout.setOrientation(LinearLayout.VERTICAL);
+
+                                                    TextView txtTitleValue = new TextView(MainActivity.this);
+                                                    txtTitleValue.setText("VALUE");
+
+
+                                                    final EditText editTextValue = new EditText(MainActivity.this);
+                                                    editTextValue.setInputType(InputType.TYPE_CLASS_TEXT);
+                                                    editTextValue.setWidth(100);
+
+
+                                                    layout.addView(txtTitleValue);
+                                                    layout.addView(editTextValue);
+                                                    dialog.setView(layout);
+
+                                                    dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                                            if (!mBclmanager.getState().equals(BCLState.UNINITIALIZED)) {
+
+                                                                mBclmanager.addDeviceLog(editTextValue.getText().toString());
+                                                                txt_logs.append("[AddMetaData]  \n" + "value: " + editTextValue.getText().toString() + "\n");
                                                                 infoScrollView.fullScroll(View.FOCUS_DOWN);
                                                             }
                                                         }
