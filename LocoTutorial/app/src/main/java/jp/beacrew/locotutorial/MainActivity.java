@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
 
     private void permissionCheck() {
 
-        if (Build.VERSION.SDK_INT > 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
 
             boolean permissionAccessFineLocationApproved =
                     checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
