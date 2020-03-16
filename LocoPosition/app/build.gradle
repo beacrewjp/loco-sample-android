@@ -1,0 +1,60 @@
+apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+    defaultConfig {
+        applicationId "jp.beacrew.locoposition"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+repositories {
+    maven {
+        url 'https://github.com/beacrewjp/loco-sdk-android-distribution/raw/master/maven/maven-repo'
+    }
+}
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'jp.beacrew:loco:2.5.1@aar'
+    implementation(name:'positioning_plugin-release', ext:'aar')
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation ('org.altbeacon:android-beacon-library:2.16.2') {
+        exclude module: 'support-v4'
+    }
+
+    implementation ('com.squareup.okhttp3:okhttp:3.9.0'){
+        exclude module: 'support-v4'
+    }
+    implementation ('org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1'){
+        exclude module: 'support-v4'
+    }
+    implementation ('org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'){
+        exclude module: 'support-v4'
+    }
+    implementation ('com.google.code.gson:gson:2.8.5') {
+        exclude module: 'support-v4'
+    }
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+}
+
+repositories{
+    flatDir{
+        dirs 'libs'
+    }
+}
