@@ -20,7 +20,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
@@ -338,6 +340,9 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         super.onStart();
         //位置情報の許可を取得しているかチェックします
         permissionCheck();
+        if (Build.VERSION.SDK_INT >= 31) {
+            blePermmmissionCheck();
+        }
     }
 
     @Override
@@ -371,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
                         // App can access location both in the foreground and in the background.
                         // Start your service that doesn't have a foreground service type
                         // defined.
+
                     } else {
                         // App can only access location in the foreground. Display a dialog
                         // warning the user that your app must have all-the-time access to
@@ -397,6 +403,16 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
                             1000);
                 }
             }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void blePermmmissionCheck() {
+        if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED &&
+                checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Permissions are already granted.", Toast.LENGTH_SHORT).show();
+        } else {
+            requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN}, 1001);
         }
     }
 
@@ -456,8 +472,39 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
                             .show();
                 }
             }
+        } else if (requestCode == 1001){
+            if (grantResults.length == 2 ) {
+
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    // success!
+                    Log.d("LocoServiceAppMain", "BLEパーミッション許可");
+
+                } else {
+                    // Permission was denied or request was cancelled
+                    Log.d("LocoServiceAppMain", "BLEパーミッション拒否");
+
+                    new AlertDialog.Builder(this)
+                            .setTitle("注意")
+                            .setMessage("本アプリではBLEを使用します、設定画面から付近のデバイスの許可をして下さい")
+                            .setPositiveButton(
+                                    "OK",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+
+                                            // システムのアプリ設定画面
+                                            Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                        }
+                                    })
+                            .show();
+                }
+            }
         }
     }
+
 
     @Override
     public void onStateChange(final BCLState bclState) {
