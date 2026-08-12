@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import jp.beacrew.loco.BCLAction;
 import jp.beacrew.loco.BCLBeacon;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
     private BCLManager mBclmanager;
     private TextView txt_logs;
     private ScrollView infoScrollView;
-    private String APIKEY = "ENTER YOUR SDK SECRET";
+    private String APIKEY = "UJp6AfSkDPSgPnCyA8ytY9hMVir5wsGS";
     static final String BR = System.getProperty("line.separator");
     private Context mApplicationContext;
 
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
 
         txt_logs = findViewById(R.id.txt_logs);
         infoScrollView = findViewById(R.id.logs_scroll);
+        BCLManager.setUseForegroundService(true);
         mBclmanager = BCLManager.getInstance(mApplicationContext);
         mBclmanager.setListener(this);
         //ButterKnife.bind(this);
@@ -409,10 +411,11 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void blePermmmissionCheck() {
         if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED &&
-                checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
+                checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
+                checkSelfPermission(Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Permissions are already granted.", Toast.LENGTH_SHORT).show();
         } else {
-            requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN}, 1001);
+            requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_ADVERTISE}, 1001);
         }
     }
 
@@ -569,6 +572,36 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
             infoScrollView.fullScroll(View.FOCUS_DOWN);
             }
         });
+    }
+
+    @Override
+    public void onEstimatePosition(final Map<String, Object> position) {
+        /*
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            CharSequence csHTML = Html.fromHtml("<font color=\"#00ffff\">" + getNowDate()  + " [EstimatePosition]  " + position.toString() + "</font><br>");
+            txt_logs.append(csHTML);
+            infoScrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        });
+
+         */
+    }
+
+    @Override
+    public void onChangeLocatedCluster(final BCLCluster bclCluster) {
+        /*
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            CharSequence csHTML = Html.fromHtml("<font color=\"#00ffff\">" + getNowDate()  + " [ChangeLocatedCluster]  " + (bclCluster != null ? bclCluster.getName() : "null") + "</font><br>");
+            txt_logs.append(csHTML);
+            infoScrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        });
+
+         */
     }
 
     @Override
