@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.Image;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -20,9 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
@@ -52,9 +49,12 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
     private BCLManager mBclmanager;
     private TextView txt_logs;
     private ScrollView infoScrollView;
-    private String APIKEY = "UJp6AfSkDPSgPnCyA8ytY9hMVir5wsGS";
+    private String APIKEY = "ENTER_YOUR_API_KEY";
     static final String BR = System.getProperty("line.separator");
     private Context mApplicationContext;
+    // trueにする場合はAndroidManifest.xmlのFOREGROUND_SERVICE関連のパーミッションと
+    // BeaconServiceのforegroundServiceType宣言も合わせてコメントインして下さい
+    private static final boolean USE_FOREGROUND_SERVICE = false;
 
     private ImageView imgInit;
     private ImageView imgStart;
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
 
         txt_logs = findViewById(R.id.txt_logs);
         infoScrollView = findViewById(R.id.logs_scroll);
-        BCLManager.setUseForegroundService(true);
+        BCLManager.setUseForegroundService(USE_FOREGROUND_SERVICE);
         mBclmanager = BCLManager.getInstance(mApplicationContext);
         mBclmanager.setListener(this);
         //ButterKnife.bind(this);
@@ -340,14 +340,9 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
     @Override
     protected void onStart() {
         super.onStart();
-        //位置情報の許可を取得しているかチェックします
-        permissionCheck();
-        if (Build.VERSION.SDK_INT >= 31) {
-            blePermmmissionCheck();
-        }
-        if (Build.VERSION.SDK_INT >= 33) {
-            notificationPermissionCheck();
-        }
+        //必要な権限を1つずつ順番に確認・要求します(複数を同時にrequestPermissions()すると
+        //後続の要求がOSに無視されるダイアログが出ないことがあるため)
+        checkForegroundLocationPermission();
     }
 
     @Override
@@ -362,55 +357,49 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
         mBclmanager.terminateService();
     }
 
-    private void permissionCheck() {
-
-        if (Build.VERSION.SDK_INT > 23) {
-
-            boolean permissionAccessFineLocationApproved =
-                    checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED;
-
-            if (permissionAccessFineLocationApproved) {
-                requestBackgroundLocationPermissionIfNeeded();
-            } else {
-                // Android 10+ではフォアグラウンドとバックグラウンドの位置情報を同時に要求すると
-                // OSのダイアログが出ずに自動拒否されるため、まずフォアグラウンドのみ要求する
-                requestPermissions(new String[]{
-                                Manifest.permission.ACCESS_FINE_LOCATION
-                        },
-                        1000);
-            }
-        }
-    }
-
-    private void requestBackgroundLocationPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT >= 29) {
-            boolean backgroundLocationPermissionApproved =
-                    checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED;
-
-            if (!backgroundLocationPermissionApproved) {
-                requestPermissions(new String[]{
-                                Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                        1002);
-            }
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void blePermmmissionCheck() {
-        if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED &&
-                checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
-                checkSelfPermission(Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Permissions are already granted.", Toast.LENGTH_SHORT).show();
+    private void checkForegroundLocationPermission() {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            checkBackgroundLocationPermission();
         } else {
-            requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_ADVERTISE}, 1001);
+            // Android 10+ではフォアグラウンドとバックグラウンドの位置情報を同時に要求すると
+            // OSのダイアログが出ずに自動拒否されるため、まずフォアグラウンドのみ要求する
+            requestPermissions(new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                    },
+                    1000);
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
-    private void notificationPermissionCheck() {
-        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+    private void checkBackgroundLocationPermission() {
+        if (Build.VERSION.SDK_INT >= 29 &&
+                checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    1002);
+        } else {
+            checkBlePermissions();
+        }
+    }
+
+    private void checkBlePermissions() {
+        if (Build.VERSION.SDK_INT >= 31 &&
+                !(checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED &&
+                        checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
+                        checkSelfPermission(Manifest.permission.BLUETOOTH_ADVERTISE) == PackageManager.PERMISSION_GRANTED)) {
+            requestPermissions(new String[]{
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_ADVERTISE}, 1001);
+        } else {
+            checkNotificationPermission();
+        }
+    }
+
+    private void checkNotificationPermission() {
+        if (USE_FOREGROUND_SERVICE && Build.VERSION.SDK_INT >= 33 &&
+                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1003);
         }
     }
@@ -423,109 +412,43 @@ public class MainActivity extends AppCompatActivity implements BCLManagerEventLi
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // success!
                 Log.d("LocoServiceAppMain", "パーミッション許可");
-                requestBackgroundLocationPermissionIfNeeded();
-
             } else {
                 // Permission was denied or request was cancelled
                 Log.d("LocoServiceAppMain", "パーミッション拒否");
-                new AlertDialog.Builder(this)
-                        .setTitle("注意")
-                        .setMessage("本アプリは位置情報を使用します、設定画面から位置情報の使用を許可して下さい")
-                        .setPositiveButton(
-                                "OK",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                        // システムのアプリ設定画面
-                                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-                                    }
-                                })
-                        .show();
             }
+            checkBackgroundLocationPermission();
+
         } else if (requestCode == 1002) {
 
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // success!
                 Log.d("LocoServiceAppMain", "Backgroundパーミッション許可");
-
             } else {
                 // Permission was denied or request was cancelled
                 Log.d("LocoServiceAppMain", "Backgroundパーミッション拒否");
-                new AlertDialog.Builder(this)
-                        .setTitle("注意")
-                        .setMessage("本アプリは位置情報を常に使用します、設定画面から位置情報の許可を常に使用するにして下さい")
-                        .setPositiveButton(
-                                "OK",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                        // システムのアプリ設定画面
-                                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-                                    }
-                                })
-                        .show();
             }
+            checkBlePermissions();
+
         } else if (requestCode == 1001){
-            if (grantResults.length == 3 ) {
-
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                    // success!
-                    Log.d("LocoServiceAppMain", "BLEパーミッション許可");
-
-                } else {
-                    // Permission was denied or request was cancelled
-                    Log.d("LocoServiceAppMain", "BLEパーミッション拒否");
-
-                    new AlertDialog.Builder(this)
-                            .setTitle("注意")
-                            .setMessage("本アプリではBLEを使用します、設定画面から付近のデバイスの許可をして下さい")
-                            .setPositiveButton(
-                                    "OK",
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-
-                                            // システムのアプリ設定画面
-                                            Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            startActivity(intent);
-                                        }
-                                    })
-                            .show();
-                }
+            if (grantResults.length == 3 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+                // success!
+                Log.d("LocoServiceAppMain", "BLEパーミッション許可");
+            } else {
+                // Permission was denied or request was cancelled
+                Log.d("LocoServiceAppMain", "BLEパーミッション拒否");
             }
+            checkNotificationPermission();
+
         } else if (requestCode == 1003) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // success!
                 Log.d("LocoServiceAppMain", "通知パーミッション許可");
-
             } else {
                 // Permission was denied or request was cancelled
                 Log.d("LocoServiceAppMain", "通知パーミッション拒否");
-
-                new AlertDialog.Builder(this)
-                        .setTitle("注意")
-                        .setMessage("本アプリは通知を使用します、設定画面から通知を許可して下さい")
-                        .setPositiveButton(
-                                "OK",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                        // システムのアプリ設定画面
-                                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-                                    }
-                                })
-                        .show();
             }
         }
     }
