@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="jp.beacrew.locotester">
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <!-- ForegroundServiceを使用するためのパーミッション -->
+    <!--
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    -->
 
     <application
         android:allowBackup="true"
@@ -26,6 +36,18 @@
             android:exported="true">
 
         </activity>
+        <service android:name="org.altbeacon.beacon.service.BeaconService"
+            tools:node="replace">
+            <meta-data android:name="longScanForcingEnabled" android:value="true"/>
+        </service>
+        <!-- BeaconServiceをForegroundServiceとして起動するための設定 -->
+        <!--
+        <service android:name="org.altbeacon.beacon.service.BeaconService"
+            tools:node="replace"
+            android:foregroundServiceType="location">
+            <meta-data android:name="longScanForcingEnabled" android:value="true"/>
+        </service>
+        -->
     </application>
 
 </manifest>
