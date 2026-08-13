@@ -13,9 +13,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.Toast;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
 /**
  * webコンテンツを表示する為のFragment
  */

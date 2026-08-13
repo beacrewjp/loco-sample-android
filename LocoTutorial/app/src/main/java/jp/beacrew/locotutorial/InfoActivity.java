@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class InfoActivity extends Activity {
     private Boolean showingWebActivity = false;
